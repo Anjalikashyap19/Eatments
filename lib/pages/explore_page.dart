@@ -1,29 +1,36 @@
+// Updated ExplorePage with Sidebar and Animated Text Buttons
+// Enhanced ExplorePage with Premium Sidebar and Content Design
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'dart:math' as math;
 
-class ExplorePage extends StatefulWidget {
-  const ExplorePage({super.key});
+class ExplorePageWithSidebar extends StatefulWidget {
+  const ExplorePageWithSidebar({super.key});
 
   @override
-  State<ExplorePage> createState() => _ExplorePageState();
+  State<ExplorePageWithSidebar> createState() => _ExplorePageWithSidebarState();
 }
 
-class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin {
+class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   final ScrollController _scrollController = ScrollController();
   double _appBarElevation = 0.0;
 
+  int _selectedIndex = -1;
+
+  final List<String> navItems = ['Meeting', 'Party', 'Event', 'Dating', 'Adventure'];
+
   final List<Map<String, dynamic>> _categories = [
-    {'icon': Icons.restaurant, 'name': 'North Indian'},
+    {'icon': Icons.restaurant_menu, 'name': 'North Indian'},
     {'icon': Icons.ramen_dining, 'name': 'Chinese'},
     {'icon': Icons.local_pizza, 'name': 'Italian'},
-    {'icon': Icons.rice_bowl, 'name': 'South Indian'},
+    {'icon': Icons.soup_kitchen, 'name': 'South Indian'},
     {'icon': Icons.cake, 'name': 'Desserts'},
     {'icon': Icons.local_cafe, 'name': 'Cafe'},
-    {'icon': Icons.local_bar, 'name': 'Bar'},
-    {'icon': Icons.emoji_food_beverage, 'name': 'Fast Food'},
+    {'icon': Icons.wine_bar, 'name': 'Bar'},
+    {'icon': Icons.fastfood, 'name': 'Fast Food'},
   ];
 
   final List<Map<String, dynamic>> _trendingRestaurants = [
@@ -57,7 +64,7 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: _animationController,
-        curve: Curves.easeOutQuint,
+        curve: Curves.easeOutExpo,
       ),
     );
 
@@ -84,68 +91,155 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: CustomScrollView(
-        controller: _scrollController,
-        slivers: [
-          SliverAppBar(
-            title: const Text('Explore'),
-            elevation: _appBarElevation,
-            pinned: true,
-            floating: true,
-            snap: false,
-            centerTitle: false,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(80),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: Hero(
-                  tag: 'search_bar',
-                  child: Material(
-                    color: Colors.transparent,
-                    child: TextField(
-                      controller: _searchController,
-                      autofocus: true,
-                      decoration: InputDecoration(
-                        hintText: 'Search for restaurants or cuisines...',
-                        prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
+      body: Row(
+        children: [
+          // Sidebar
+          Container(
+            width: 60,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.red, Colors.orange],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  offset: Offset(4, 0),
+                ),
+              ],
+            ),
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                IconButton(
+                  icon: const Icon(Icons.menu, color: Colors.orange),
+                  onPressed: () {},
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: navItems.asMap().entries.map((entry) {
+                      int index = entry.key;
+                      String label = entry.value;
+                      bool isSelected = index == _selectedIndex;
+
+                      return AnimatedOpacity(
+                        duration: const Duration(milliseconds: 400),
+                        opacity: 1.0,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: () => setState(() => _selectedIndex = index),
+                              child: RotatedBox(
+                                quarterTurns: -1,
+                                child: AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 300),
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : Colors.black87,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
+                                    fontSize: isSelected ? 15 : 13,
+                                    letterSpacing: 1.1,
+                                  ),
+                                  child: Text(label),
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Main Content
+          Expanded(
+            child: CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+                SliverAppBar(
+                  backgroundColor: Colors.white,
+                  elevation: _appBarElevation,
+                  pinned: true,
+                  floating: true,
+                  title: const Text(
+                    'Explore',
+                    style: TextStyle(fontFamily: 'Poppins',fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange),
+                  ),
+                  bottom: PreferredSize(
+                    preferredSize: const Size.fromHeight(80),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Hero(
+                        tag: 'search_bar',
+                        child: Material(
+                          color: Colors.transparent,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.orange.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 3),
+                                )
+                              ],
+                            ),
+                            child: TextField(
+                              controller: _searchController,
+                              decoration: InputDecoration(
+                                hintText: 'Search for exclusive experiences...',
+                                prefixIcon: Icon(Icons.search, color: Colors.orange),
+                                filled: true,
+                                fillColor: Colors.white,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  borderSide: BorderSide.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-                    _buildSectionHeader('Categories'),
-                    const SizedBox(height: 16),
-                    _buildCategoriesGrid(),
-                    const SizedBox(height: 24),
-                    _buildSectionHeader('Trending This Week'),
-                    const SizedBox(height: 16),
-                    _buildTrendingList(),
-                    const SizedBox(height: 24),
-                    _buildSectionHeader('Popular Near You'),
-                    const SizedBox(height: 16),
-                    _buildPopularList(),
-                    const SizedBox(height: 32),
-                  ],
+                SliverToBoxAdapter(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader('Curated Categories'),
+                          const SizedBox(height: 16),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 500),
+                            child: _buildCategoriesGrid(),
+                          ),
+                          const SizedBox(height: 28),
+                          _buildSectionHeader('Trending Luxury Spots'),
+                          const SizedBox(height: 16),
+                          _buildTrendingList(),
+                          const SizedBox(height: 28),
+                          _buildSectionHeader('Popular Picks Around You'),
+                          const SizedBox(height: 16),
+                          _buildPopularList(),
+                          const SizedBox(height: 40),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ],
@@ -154,13 +248,27 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
   }
 
   Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: Colors.black87,
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 22,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+            letterSpacing: 0.5,
+          ),
+        ),
+        TextButton(
+          onPressed: () {},
+          child: const Text(
+            'View All',
+            style: TextStyle(color: Colors.orange),
+          ),
+        ),
+      ],
     );
   }
 
@@ -177,39 +285,31 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
       itemCount: _categories.length,
       itemBuilder: (context, index) {
         final category = _categories[index];
-        return GestureDetector(
-          onTap: () {
-            // Handle category tap
-          },
-          child: Column(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Icon(category['icon'], color: Colors.orange[800], size: 28),
+        return Column(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                category['name'],
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[800],
-                ),
-              ),
-            ],
-          ),
+              child: Icon(category['icon'], color: Colors.orange[800], size: 28),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              category['name'],
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: Colors.grey[800]),
+            ),
+          ],
         );
       },
     );
@@ -245,44 +345,8 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
                   child: Container(
                     height: 120,
                     color: Colors.grey[200],
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: Icon(
-                            Icons.restaurant,
-                            size: 50,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 8,
-                          left: 8,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              children: [
-                                Text(
-                                  restaurant['rating'].toString(),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.star,
-                                  color: Colors.white,
-                                  size: 14,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: Center(
+                      child: Icon(Icons.restaurant, size: 50, color: Colors.grey[400]),
                     ),
                   ),
                 ),
@@ -294,7 +358,7 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
                       Text(
                         restaurant['name'],
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.bold,fontFamily: 'Poppins',
                           fontSize: 16,
                         ),
                       ),
@@ -348,14 +412,12 @@ class _ExplorePageState extends State<ExplorePage> with TickerProviderStateMixin
             ),
             title: const Text(
               'Popular Restaurant Name',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins'),
             ),
             subtitle: const Text('North Indian • Chinese • Italian'),
             trailing: const Icon(Icons.chevron_right, color: Colors.grey),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            onTap: () {
-              // Handle restaurant tap
-            },
+            onTap: () {},
           ),
         );
       },

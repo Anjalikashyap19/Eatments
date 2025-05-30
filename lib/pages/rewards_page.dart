@@ -167,7 +167,7 @@ class _RewardsPageState extends State<RewardsPage> {
                                   ? null
                                   : () {
                                 setState(() {
-                                  _points -= reward['points'];
+                                  _points -= reward['points'] as int;
                                   _rewards[index]['claimed'] = true;
                                 });
                               },
