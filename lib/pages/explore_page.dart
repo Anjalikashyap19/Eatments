@@ -1,7 +1,7 @@
-// Updated ExplorePage with Sidebar and Animated Text Buttons
-// Enhanced ExplorePage with Premium Sidebar and Content Design
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'dart:math' as math;
 
 class ExplorePageWithSidebar extends StatefulWidget {
@@ -18,19 +18,25 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
   final ScrollController _scrollController = ScrollController();
   double _appBarElevation = 0.0;
 
-  int _selectedIndex = -1;
-
-  final List<String> navItems = ['Meeting', 'Party', 'Event', 'Dating', 'Adventure'];
+  String? _selectedFilter;
+  String? _selectedCuisine;
+  final List<Map<String, dynamic>> eventTypes = [
+    {'name': 'Adventure', 'icon': Icons.terrain},
+    {'name': 'Dating', 'icon': Icons.favorite},
+    {'name': 'Meeting', 'icon': Icons.people},
+    {'name': 'Party', 'icon': Icons.celebration},
+    {'name': 'Event', 'icon': Icons.event},
+  ];
 
   final List<Map<String, dynamic>> _categories = [
-    {'icon': Icons.restaurant_menu, 'name': 'North Indian'},
-    {'icon': Icons.ramen_dining, 'name': 'Chinese'},
-    {'icon': Icons.local_pizza, 'name': 'Italian'},
-    {'icon': Icons.soup_kitchen, 'name': 'South Indian'},
-    {'icon': Icons.cake, 'name': 'Desserts'},
-    {'icon': Icons.local_cafe, 'name': 'Cafe'},
-    {'icon': Icons.wine_bar, 'name': 'Bar'},
-    {'icon': Icons.fastfood, 'name': 'Fast Food'},
+    {'icon': Icons.restaurant_menu, 'name': 'North Indian', 'color': Colors.deepOrange},
+    {'icon': Icons.ramen_dining, 'name': 'Chinese', 'color': Colors.redAccent},
+    {'icon': Icons.local_pizza, 'name': 'Italian', 'color': Colors.amber},
+    {'icon': Icons.soup_kitchen, 'name': 'South Indian', 'color': Colors.orange},
+    {'icon': Icons.cake, 'name': 'Desserts', 'color': Colors.pinkAccent},
+    {'icon': Icons.local_cafe, 'name': 'Cafe', 'color': Colors.brown},
+    {'icon': Icons.wine_bar, 'name': 'Bar', 'color': Colors.deepPurple},
+    {'icon': Icons.fastfood, 'name': 'Fast Food', 'color': Colors.red},
   ];
 
   final List<Map<String, dynamic>> _trendingRestaurants = [
@@ -39,18 +45,32 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
       'rating': 4.6,
       'type': 'North Indian • Chinese',
       'image': 'assets/restaurant4.jpg',
+      'price': '₹₹',
+      'distance': '1.2 km',
     },
     {
       'name': 'Pasta Palace',
       'rating': 4.3,
       'type': 'Italian • Continental',
       'image': 'assets/restaurant5.jpg',
+      'price': '₹₹₹',
+      'distance': '0.8 km',
     },
     {
       'name': 'The Biryani House',
       'rating': 4.8,
       'type': 'Hyderabadi • Mughlai',
       'image': 'assets/restaurant6.jpg',
+      'price': '₹₹₹₹',
+      'distance': '2.1 km',
+    },
+    {
+      'name': 'Lakeview Bistro',
+      'rating': 4.7,
+      'type': 'Multi-cuisine',
+      'image': 'assets/restaurant7.jpg',
+      'price': '₹₹₹₹₹',
+      'distance': '3.5 km',
     },
   ];
 
@@ -90,159 +110,294 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
-      body: Row(
-        children: [
-          // Sidebar
-          Container(
-            width: 60,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.red, Colors.orange],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      backgroundColor: Colors.orange[50],
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverAppBar(
+            backgroundColor: Colors.white,
+            elevation: _appBarElevation,
+            pinned: true,
+            floating: true,
+            expandedHeight: 180,
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+              title: Text(
+                'Explore',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange[800],
+                  shadows: [
+                    Shadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  offset: Offset(4, 0),
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.orange[50]!,
+                      Colors.orange[100]!,
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.orange),
-                  onPressed: () {},
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: navItems.asMap().entries.map((entry) {
-                      int index = entry.key;
-                      String label = entry.value;
-                      bool isSelected = index == _selectedIndex;
-
-                      return AnimatedOpacity(
-                        duration: const Duration(milliseconds: 400),
-                        opacity: 1.0,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              onTap: () => setState(() => _selectedIndex = index),
-                              child: RotatedBox(
-                                quarterTurns: -1,
-                                child: AnimatedDefaultTextStyle(
-                                  duration: const Duration(milliseconds: 300),
-                                  style: TextStyle(
-                                    color: isSelected ? Colors.white : Colors.black87,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
-                                    fontSize: isSelected ? 15 : 13,
-                                    letterSpacing: 1.1,
-                                  ),
-                                  child: Text(label),
-                                ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(150),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Column(
+                  children: [
+                    Hero(
+                      tag: 'search_bar',
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.orange.withOpacity(0.2),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
                               ),
+                            ],
+                          ),
+                          child: TextField(
+                            controller: _searchController,
+                            style: const TextStyle(fontFamily: 'Poppins'),
+                            decoration: InputDecoration(
+                              hintText: 'Search for exclusive experiences...',
+                              hintStyle: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontFamily: 'Poppins'),
+                              prefixIcon: Icon(Icons.search, color: Colors.orange[800]),
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(30),
+                                borderSide: BorderSide.none,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildFilterDropdown(),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildCuisineDropdown(),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-
-          // Main Content
-          Expanded(
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverAppBar(
-                  backgroundColor: Colors.white,
-                  elevation: _appBarElevation,
-                  pinned: true,
-                  floating: true,
-                  title: const Text(
-                    'Explore',
-                    style: TextStyle(fontFamily: 'Poppins',fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange),
-                  ),
-                  bottom: PreferredSize(
-                    preferredSize: const Size.fromHeight(80),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      child: Hero(
-                        tag: 'search_bar',
-                        child: Material(
-                          color: Colors.transparent,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.orange.withOpacity(0.2),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                )
-                              ],
-                            ),
-                            child: TextField(
-                              controller: _searchController,
-                              decoration: InputDecoration(
-                                hintText: 'Search for exclusive experiences...',
-                                prefixIcon: Icon(Icons.search, color: Colors.orange),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+          SliverToBoxAdapter(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader('Curated Categories'),
+                    const SizedBox(height: 0),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 500),
+                      child: _buildCategoriesGrid(),
                     ),
-                  ),
+                    const SizedBox(height: 15),
+                    _buildSectionHeader('Trending Luxury Spots'),
+                    const SizedBox(height: 15),
+                    _buildTrendingList(),
+                    const SizedBox(height: 28),
+                    _buildSectionHeader('Popular Picks Around You'),
+                    const SizedBox(height: 15),
+                    _buildPopularList(),
+                    const SizedBox(height: 40),
+                  ],
                 ),
-                SliverToBoxAdapter(
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSectionHeader('Curated Categories'),
-                          const SizedBox(height: 16),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 500),
-                            child: _buildCategoriesGrid(),
-                          ),
-                          const SizedBox(height: 28),
-                          _buildSectionHeader('Trending Luxury Spots'),
-                          const SizedBox(height: 16),
-                          _buildTrendingList(),
-                          const SizedBox(height: 28),
-                          _buildSectionHeader('Popular Picks Around You'),
-                          const SizedBox(height: 16),
-                          _buildPopularList(),
-                          const SizedBox(height: 40),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFilterDropdown() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _selectedFilter != null
+              ? Colors.orange.withOpacity(0.8)
+              : Colors.orange.shade200,
+          width: _selectedFilter != null ? 1.5 : 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          value: _selectedFilter,
+          hint: const Text('Event type', style: TextStyle(fontFamily: 'Poppins')),
+          onChanged: (String? value) {
+            setState(() {
+              _selectedFilter = value;
+              HapticFeedback.lightImpact();
+            });
+          },
+          items: [
+            const DropdownMenuItem<String>(
+              value: null,
+              child: Text('All Events', style: TextStyle(fontFamily: 'Poppins')),
+            ),
+            ...eventTypes.map<DropdownMenuItem<String>>((event) {
+              return DropdownMenuItem<String>(
+                value: event['name'],
+                child: Row(
+                  children: [
+                    Icon(event['icon'], size: 18, color: Colors.orange[800]),
+                    const SizedBox(width: 8),
+                    Text(event['name'], style: const TextStyle(fontFamily: 'Poppins')),
+                  ],
+                ),
+              );
+            }).toList(),
+          ],
+          buttonStyleData: const ButtonStyleData(
+            height: 50,
+            padding: EdgeInsets.only(left: 16, right: 8),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 300,
+            width: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.2),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            offset: const Offset(0, -10),
+          ),
+          iconStyleData: IconStyleData(
+            icon: Icon(Icons.arrow_drop_down, color: Colors.orange[800]),
+            iconSize: 24,
+          ),
+          menuItemStyleData: const MenuItemStyleData(
+            height: 40,
+            padding: EdgeInsets.symmetric(horizontal: 16),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCuisineDropdown() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: _selectedCuisine != null
+              ? Colors.orange.withOpacity(0.8)
+              : Colors.orange.shade200,
+          width: _selectedCuisine != null ? 1.5 : 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton2<String>(
+          value: _selectedCuisine,
+          hint: const Text('Cuisine', style: TextStyle(fontFamily: 'Poppins')),
+          onChanged: (String? value) {
+            setState(() {
+              _selectedCuisine = value;
+              HapticFeedback.lightImpact();
+            });
+          },
+          items: [
+            const DropdownMenuItem<String>(
+              value: null,
+              child: Text('All Cuisines', style: TextStyle(fontFamily: 'Poppins')),
+            ),
+            ..._categories.map<DropdownMenuItem<String>>((category) {
+              return DropdownMenuItem<String>(
+                value: category['name'],
+                child: Row(
+                  children: [
+                    Icon(category['icon'], size: 20, color: category['color']),
+                    const SizedBox(width: 10),
+                    Text(category['name'], style: const TextStyle(fontFamily: 'Poppins')),
+                  ],
+                ),
+              );
+            }).toList(),
+          ],
+          buttonStyleData: const ButtonStyleData(
+            height: 50,
+            padding: EdgeInsets.only(left: 16, right: 8),
+          ),
+          dropdownStyleData: DropdownStyleData(
+            maxHeight: 300,
+            width: 200,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.2),
+                    blurRadius: 10,
+                    spreadRadius: 2),
+              ],
+            ),
+            offset: const Offset(0, -10),
+          ),
+          iconStyleData: IconStyleData(
+            icon: Icon(Icons.arrow_drop_down, color: Colors.orange[800]),
+            iconSize: 24,
+          ),
+          menuItemStyleData: const MenuItemStyleData(
+            height: 40,
+            padding: EdgeInsets.symmetric(horizontal: 16),
+          ),
+        ),
       ),
     );
   }
@@ -253,19 +408,23 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 22,
             fontFamily: 'Poppins',
             fontWeight: FontWeight.bold,
-            color: Colors.black87,
+            color: Colors.grey[800],
             letterSpacing: 0.5,
           ),
         ),
         TextButton(
           onPressed: () {},
-          child: const Text(
+          child: Text(
             'View All',
-            style: TextStyle(color: Colors.orange),
+            style: TextStyle(
+              color: Colors.orange[800],
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
       ],
@@ -285,50 +444,26 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
       itemCount: _categories.length,
       itemBuilder: (context, index) {
         final category = _categories[index];
-        return Column(
-          children: [
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(category['icon'], color: Colors.orange[800], size: 28),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              category['name'],
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, color: Colors.grey[800]),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildTrendingList() {
-    return SizedBox(
-      height: 180,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _trendingRestaurants.length,
-        itemBuilder: (context, index) {
-          final restaurant = _trendingRestaurants[index];
-          return Container(
-            width: 280,
-            margin: EdgeInsets.only(right: index == _trendingRestaurants.length - 1 ? 0 : 16),
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              _selectedCuisine = category['name'];
+            });
+            HapticFeedback.lightImpact();
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
+              color: _selectedCuisine == category['name']
+                  ? Colors.orange[50]
+                  : Colors.white,
               borderRadius: BorderRadius.circular(16),
-              color: Colors.white,
+              border: Border.all(
+                color: _selectedCuisine == category['name']
+                    ? Colors.orange.withOpacity(0.8)
+                    : Colors.orange.withOpacity(0.1),
+                width: _selectedCuisine == category['name'] ? 1.5 : 1.0,
+              ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.grey.withOpacity(0.1),
@@ -338,15 +473,77 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
               ],
             ),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: category['color'].withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(category['icon'], color: category['color'], size: 28),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  category['name'],
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[800],
+                    fontFamily: 'Poppins',
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTrendingList() {
+    return SizedBox(
+      height: 220,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _trendingRestaurants.length,
+        itemBuilder: (context, index) {
+          final restaurant = _trendingRestaurants[index];
+          return Container(
+            width: 180,
+            margin: EdgeInsets.only(right: index == _trendingRestaurants.length - 1 ? 0 : 16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: Container(
-                    height: 120,
-                    color: Colors.grey[200],
-                    child: Center(
-                      child: Icon(Icons.restaurant, size: 50, color: Colors.grey[400]),
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.orange[100]!,
+                            Colors.orange[200]!,
+                          ],
+                        ),
+                      ),
+                      child: Center(
+                        child: Icon(Icons.restaurant, size: 50, color: Colors.white),
+                      ),
                     ),
                   ),
                 ),
@@ -358,9 +555,12 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
                       Text(
                         restaurant['name'],
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold,fontFamily: 'Poppins',
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
                           fontSize: 16,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -368,7 +568,38 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
                         style: TextStyle(
                           color: Colors.grey[600],
                           fontSize: 12,
+                          fontFamily: 'Poppins',
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.star, color: Colors.orange[800], size: 16),
+                              const SizedBox(width: 4),
+                              Text(
+                                restaurant['rating'].toString(),
+                                style: TextStyle(
+                                  color: Colors.grey[800],
+                                  fontSize: 12,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            restaurant['distance'],
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -405,19 +636,27 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
               width: 50,
               height: 50,
               decoration: BoxDecoration(
-                color: Colors.grey[200],
+                color: Colors.orange[100],
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.restaurant, color: Colors.grey),
+              child: Icon(Icons.restaurant, color: Colors.orange[800]),
             ),
-            title: const Text(
-              'Popular Restaurant Name',
-              style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins'),
+            title: Text(
+              'Popular Restaurant ${index + 1}',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
+              ),
             ),
-            subtitle: const Text('North Indian • Chinese • Italian'),
-            trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+            subtitle: const Text(
+              'North Indian • Chinese • Italian',
+              style: TextStyle(fontFamily: 'Poppins'),
+            ),
+            trailing: Icon(Icons.chevron_right, color: Colors.orange[800]),
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-            onTap: () {},
+            onTap: () {
+              HapticFeedback.lightImpact();
+            },
           ),
         );
       },

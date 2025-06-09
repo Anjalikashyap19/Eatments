@@ -1,0 +1,2 @@
+C:/Users/Neal/StudioProjects/Eatments/android/app/.cxx/Debug/2b1g2q1q/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/Neal/StudioProjects/Eatments/android/app/.cxx/Debug/2b1g2q1q/x86_64/CMakeFiles/rebuild_cache.dir
