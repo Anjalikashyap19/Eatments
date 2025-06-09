@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'bookings_page.dart';
 import 'explore_page.dart';
-import 'favorites_page.dart';
 import 'profile_page.dart';
 import 'rewards_page.dart';
 import 'package:flutter/foundation.dart';
