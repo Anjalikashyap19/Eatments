@@ -1,4 +1,4 @@
-// HomeLuxuryPage with persistent bottom navigation bar integration
+// Updated HomeLuxuryPage with offers row and removed Book Now button
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'bookings_page.dart';
@@ -16,6 +16,7 @@ class HomeLuxuryPage extends StatefulWidget {
 
 class _HomeLuxuryPageState extends State<HomeLuxuryPage> {
   int _currentIndex = 0;
+  String? _selectedCategory;
 
   final List<Widget> _pages = const [
     HomeContent(),
@@ -168,6 +169,8 @@ class HomeContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     _buildSearchBar(),
+                    const SizedBox(height: 16),
+                    _buildCategoryFilter(),
                   ],
                 ),
               ),
@@ -182,13 +185,9 @@ class HomeContent extends StatelessWidget {
                 const SizedBox(height: 16),
                 _buildHotelCarousel(),
                 const SizedBox(height: 32),
-                _buildSectionHeader('Special Offers', 'See all'),
+                _buildSectionHeader('All Offers', 'See all'),
                 const SizedBox(height: 16),
-                _buildOffersList(),
-                const SizedBox(height: 32),
-                _buildSectionHeader('Categories', 'Explore'),
-                const SizedBox(height: 16),
-                _buildLuxuryCategories(),
+                _buildAllOffersList(),
                 const SizedBox(height: 32),
                 _buildSectionHeader('Try Something New', 'Suggest me'),
                 const SizedBox(height: 16),
@@ -197,13 +196,143 @@ class HomeContent extends StatelessWidget {
                 _buildSectionHeader('Your Rewards', 'Redeem'),
                 const SizedBox(height: 16),
                 _buildRewardsSection(),
-                const SizedBox(height: 32),
-                _buildFloatingCTA(context),
                 const SizedBox(height: 60),
               ]),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildAllOffersList() {
+    final List<Map<String, dynamic>> offers = [
+      {
+        'title': 'Weekend Special',
+        'description': '30% off on all orders above ₹2000',
+        'icon': Icons.weekend,
+        'color': Colors.purple,
+      },
+      {
+        'title': 'Family Feast',
+        'description': 'Free dessert for 4+ people',
+        'icon': Icons.family_restroom,
+        'color': Colors.green,
+      },
+      {
+        'title': 'First Time User',
+        'description': '20% off on first booking',
+        'icon': Icons.star,
+        'color': Colors.blue,
+      },
+      {
+        'title': 'Happy Hour',
+        'description': 'Buy 1 get 1 free on drinks',
+        'icon': Icons.local_bar,
+        'color': Colors.red,
+      },
+      {
+        'title': 'Lunch Special',
+        'description': '15% off on all lunch orders',
+        'icon': Icons.lunch_dining,
+        'color': Colors.orange,
+      },
+    ];
+
+    return SizedBox(
+      height: 150,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: offers.length,
+        itemBuilder: (context, index) {
+          final offer = offers[index];
+          return Container(
+            width: 200,
+            margin: EdgeInsets.only(right: index == offers.length - 1 ? 0 : 16),
+            decoration: BoxDecoration(
+              color: offer['color'].withOpacity(0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: offer['color'].withOpacity(0.3)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: offer['color'].withOpacity(0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(offer['icon'], color: offer['color']),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    offer['title'],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: offer['color'],
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    offer['description'],
+                    style: TextStyle(
+                      color: Colors.grey.shade700,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCategoryFilter() {
+    final List<Map<String, dynamic>> categories = [
+      {'name': 'North Indian', 'icon': Icons.restaurant_menu},
+      {'name': 'Chinese', 'icon': Icons.ramen_dining},
+      {'name': 'Italian', 'icon': Icons.local_pizza},
+      {'name': 'South Indian', 'icon': Icons.soup_kitchen},
+      {'name': 'Desserts', 'icon': Icons.cake},
+      {'name': 'Cafe', 'icon': Icons.local_cafe},
+      {'name': 'Bar', 'icon': Icons.wine_bar},
+      {'name': 'Fast Food', 'icon': Icons.fastfood},
+    ];
+
+    return SizedBox(
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          final category = categories[index];
+          return Container(
+            margin: EdgeInsets.only(right: index == categories.length - 1 ? 0 : 8),
+            child: FilterChip(
+              label: Text(category['name']),
+              avatar: Icon(category['icon'], size: 20),
+              selected: false,
+              onSelected: (bool selected) {
+                // Handle category selection
+              },
+              selectedColor: Colors.orange.withOpacity(0.2),
+              backgroundColor: Colors.white,
+              shape: StadiumBorder(
+                side: BorderSide(color: Colors.orange.shade200),
+              ),
+              labelStyle: TextStyle(
+                color: Colors.grey.shade800,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -392,162 +521,6 @@ class HomeContent extends StatelessWidget {
     );
   }
 
-  Widget _buildOffersList() {
-    final List<Map<String, String>> offers = [
-      {
-        'title': 'Weekend Special',
-        'description': 'Get 30% off on all orders above ₹2000',
-        'code': 'WEEKEND30',
-      },
-      {
-        'title': 'Family Feast',
-        'description': 'Free dessert for family bookings (4+ people)',
-        'code': 'FAMFEAST',
-      },
-      {
-        'title': 'First Time User',
-        'description': '20% off on your first booking with us',
-        'code': 'NEW20',
-      },
-    ];
-
-    return Column(
-      children: offers.map((offer) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.orange.shade50,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: Colors.orange.shade200),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade100,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.local_offer,
-                    color: Colors.orange.shade700),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      offer['title']!,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange.shade800),
-                    ),
-                    Text(
-                      offer['description']!,
-                      style: TextStyle(color: Colors.grey.shade700),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.orange.shade700,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Text(
-                  offer['code']!,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildLuxuryCategories() {
-    final List<Map<String, dynamic>> tags = [
-      {'name': 'Romantic', 'icon': Icons.favorite, 'selected': false},
-      {'name': 'Celebrations', 'icon': Icons.celebration, 'selected': false},
-      {'name': 'Family Style', 'icon': Icons.family_restroom, 'selected': true},
-      {'name': 'Private Rooms', 'icon': Icons.meeting_room, 'selected': false},
-      {'name': 'Lake View', 'icon': Icons.water, 'selected': false},
-      {'name': 'Fine Dining', 'icon': Icons.restaurant, 'selected': false},
-      {'name': 'Rooftop', 'icon': Icons.roofing, 'selected': false},
-      {'name': 'Live Music', 'icon': Icons.music_note, 'selected': false},
-    ];
-
-    return StatefulBuilder(
-      builder: (context, setState) {
-        return Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: tags
-              .map((tag) => GestureDetector(
-            onTap: () {
-              setState(() {
-                // Toggle selection state
-                tag['selected'] = !tag['selected'];
-              });
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: tag['selected']
-                    ? Colors.orange.shade100
-                    : Colors.white,
-                border: Border.all(
-                  color: tag['selected']
-                      ? Colors.orange
-                      : Colors.orange.shade200,
-                  width: tag['selected'] ? 1.5 : 1,
-                ),
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(tag['icon'],
-                      size: 18,
-                      color: tag['selected']
-                          ? Colors.orange.shade700
-                          : Colors.grey.shade700),
-                  const SizedBox(width: 6),
-                  Text(
-                    tag['name'],
-                    style: TextStyle(
-                        color: tag['selected']
-                            ? Colors.orange.shade800
-                            : Colors.grey.shade800,
-                        fontWeight: tag['selected']
-                            ? FontWeight.bold
-                            : FontWeight.normal),
-                  ),
-                ],
-              ),
-            ),
-          ))
-              .toList(),
-        );
-      },
-    );
-  }
-
   Widget _buildNewExperiences() {
     final List<Map<String, String>> experiences = [
       {
@@ -694,48 +667,6 @@ class HomeContent extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildFloatingCTA(BuildContext context) {
-    return Center(
-      child: ElevatedButton.icon(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              title: const Text('Book A Luxury Table'),
-              content: const Text(
-                  'An assistant will guide you to your curated experience.'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Proceed'),
-                )
-              ],
-            ),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.orange.shade700,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-          elevation: 5,
-          shadowColor: Colors.orange.withOpacity(0.5),
-        ),
-        icon: const Icon(Icons.restaurant_menu),
-        label: const Text(
-          'Book Now',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
       ),
     );
   }

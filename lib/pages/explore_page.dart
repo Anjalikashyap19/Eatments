@@ -1,5 +1,4 @@
-// Updated ExplorePage with Sidebar and Animated Text Buttons
-// Enhanced ExplorePage with Premium Sidebar and Content Design
+// Updated ExplorePage without Sidebar and with Filter Dropdown
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'dart:math' as math;
@@ -18,9 +17,8 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
   final ScrollController _scrollController = ScrollController();
   double _appBarElevation = 0.0;
 
-  int _selectedIndex = -1;
-
-  final List<String> navItems = ['Meeting', 'Party', 'Event', 'Dating', 'Adventure'];
+  String? _selectedFilter;
+  final List<String> _filterOptions = ['Adventure', 'Dating', 'Event', 'Party', 'Meeting'];
 
   final List<Map<String, dynamic>> _categories = [
     {'icon': Icons.restaurant_menu, 'name': 'North Indian'},
@@ -91,155 +89,110 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: Row(
-        children: [
-          // Sidebar
-          Container(
-            width: 60,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.red, Colors.orange],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 10,
-                  offset: Offset(4, 0),
-                ),
-              ],
+      body: CustomScrollView(
+        controller: _scrollController,
+        slivers: [
+          SliverAppBar(
+            backgroundColor: Colors.white,
+            elevation: _appBarElevation,
+            pinned: true,
+            floating: true,
+            title: const Text(
+              'Explore',
+              style: TextStyle(fontFamily: 'Poppins', fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange),
             ),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                IconButton(
-                  icon: const Icon(Icons.menu, color: Colors.orange),
-                  onPressed: () {},
-                ),
-                const SizedBox(height: 20),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: navItems.asMap().entries.map((entry) {
-                      int index = entry.key;
-                      String label = entry.value;
-                      bool isSelected = index == _selectedIndex;
-
-                      return AnimatedOpacity(
-                        duration: const Duration(milliseconds: 400),
-                        opacity: 1.0,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              onTap: () => setState(() => _selectedIndex = index),
-                              child: RotatedBox(
-                                quarterTurns: -1,
-                                child: AnimatedDefaultTextStyle(
-                                  duration: const Duration(milliseconds: 300),
-                                  style: TextStyle(
-                                    color: isSelected ? Colors.white : Colors.black87,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w400,
-                                    fontSize: isSelected ? 15 : 13,
-                                    letterSpacing: 1.1,
-                                  ),
-                                  child: Text(label),
-                                ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(120),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Column(
+                  children: [
+                    Hero(
+                      tag: 'search_bar',
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.orange.withOpacity(0.2),
+                                blurRadius: 8,
+                                offset: const Offset(0, 3),
+                              )
+                            ],
+                          ),
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                              hintText: 'Search for exclusive experiences...',
+                              prefixIcon: Icon(Icons.search, color: Colors.orange),
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide.none,
                               ),
                             ),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: DropdownButton<String>(
+                        value: _selectedFilter,
+                        hint: const Text('Filter by type'),
+                        isExpanded: true,
+                        underline: const SizedBox(),
+                        items: _filterOptions.map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedFilter = newValue;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
-
-          // Main Content
-          Expanded(
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverAppBar(
-                  backgroundColor: Colors.white,
-                  elevation: _appBarElevation,
-                  pinned: true,
-                  floating: true,
-                  title: const Text(
-                    'Explore',
-                    style: TextStyle(fontFamily: 'Poppins',fontSize: 24, fontWeight: FontWeight.bold, color: Colors.orange),
-                  ),
-                  bottom: PreferredSize(
-                    preferredSize: const Size.fromHeight(80),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      child: Hero(
-                        tag: 'search_bar',
-                        child: Material(
-                          color: Colors.transparent,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.orange.withOpacity(0.2),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                )
-                              ],
-                            ),
-                            child: TextField(
-                              controller: _searchController,
-                              decoration: InputDecoration(
-                                hintText: 'Search for exclusive experiences...',
-                                prefixIcon: Icon(Icons.search, color: Colors.orange),
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  borderSide: BorderSide.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+          SliverToBoxAdapter(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader('Curated Categories'),
+                    const SizedBox(height: 16),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 500),
+                      child: _buildCategoriesGrid(),
                     ),
-                  ),
+                    const SizedBox(height: 28),
+                    _buildSectionHeader('Trending Luxury Spots'),
+                    const SizedBox(height: 16),
+                    _buildTrendingList(),
+                    const SizedBox(height: 28),
+                    _buildSectionHeader('Popular Picks Around You'),
+                    const SizedBox(height: 16),
+                    _buildPopularList(),
+                    const SizedBox(height: 40),
+                  ],
                 ),
-                SliverToBoxAdapter(
-                  child: FadeTransition(
-                    opacity: _fadeAnimation,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildSectionHeader('Curated Categories'),
-                          const SizedBox(height: 16),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 500),
-                            child: _buildCategoriesGrid(),
-                          ),
-                          const SizedBox(height: 28),
-                          _buildSectionHeader('Trending Luxury Spots'),
-                          const SizedBox(height: 16),
-                          _buildTrendingList(),
-                          const SizedBox(height: 28),
-                          _buildSectionHeader('Popular Picks Around You'),
-                          const SizedBox(height: 16),
-                          _buildPopularList(),
-                          const SizedBox(height: 40),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ],
@@ -358,7 +311,8 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
                       Text(
                         restaurant['name'],
                         style: const TextStyle(
-                          fontWeight: FontWeight.bold,fontFamily: 'Poppins',
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
                           fontSize: 16,
                         ),
                       ),
@@ -412,7 +366,7 @@ class _ExplorePageWithSidebarState extends State<ExplorePageWithSidebar> with Ti
             ),
             title: const Text(
               'Popular Restaurant Name',
-              style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins'),
+              style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
             ),
             subtitle: const Text('North Indian • Chinese • Italian'),
             trailing: const Icon(Icons.chevron_right, color: Colors.grey),
